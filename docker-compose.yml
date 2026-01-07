@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: autoparts-web
+    ports:
+      - "8080:80"  # Port lokal:Port container
+    volumes:
+      - ./public:/var/www/html  # Mount folder public
+      - ./db:/var/www/html/db   # Mount folder database
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    restart: unless-stopped  # Restart otomatis jika berhenti
+    networks:
+      - autoparts-network
+
+  # Opsional: Tambah phpMyAdmin untuk manajemen database
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: autoparts-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=web
+    depends_on:
+      - web
+    networks:
+      - autoparts-network
+
+networks:
+  autoparts-network:
+    driver: bridge
+
+volumes:
+  db_data:
